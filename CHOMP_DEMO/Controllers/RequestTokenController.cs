@@ -1,21 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-
+using NFX.ApplicationModel.Pile;
 namespace CHOMP_DEMO.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class RequestTokenController : ControllerBase
     {
+        private readonly ICacheManager _cacheManager;
+        public RequestTokenController(ICacheManager cacheManager)
+        {
+            _cacheManager = cacheManager;
+        }
+
         [AllowAnonymous]
         [HttpPost]  //Frombody-> deserializa los argumentos pasados a la api
         public IActionResult RequestToken([FromBody] TokenRequest request)
@@ -24,7 +26,8 @@ namespace CHOMP_DEMO.Controllers
             {
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.Name, request.username)
+                    new Claim(ClaimTypes.Name, request.username),
+                    new Claim(ClaimTypes.Sid, "120398120948140"), 
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("LARGESYMETRICCHUNKOFSTRINGMAYORTHAN128BITSOFLENGHTFORSHAREINSERVERS"/*_configuration["SecurityKey"]*/));
@@ -36,7 +39,7 @@ namespace CHOMP_DEMO.Controllers
                     claims: claims,
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);
-
+                _cacheManager.Set($"{request.username}_TGWeb", claims[1].Value);
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token)

@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="NFX">
+      <HintPath>..\..\NFX5\NFX.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

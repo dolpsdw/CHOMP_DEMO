@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CHOMP_DEMO.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,9 @@ namespace CHOMP_DEMO
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //DI config
+            services.AddSingleton<ICacheManager, CacheManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
