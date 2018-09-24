@@ -54,6 +54,5 @@ namespace CHOMP_DEMO.Controllers
             public string username;
             public string contra;
         }
-
     }
 }
