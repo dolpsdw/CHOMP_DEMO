@@ -18,7 +18,7 @@ namespace CHOMP_DEMO.Controllers
             //Redis
             _db = _redis.GetDatabase();
             _sub = _redis.GetSubscriber();
-            _sub.Subscribe("sessionInvalidations", (channel, message) => { _cacheDirector.GetTable<string>(typeof(string).FullName).Remove(message); });
+            _sub.Subscribe(new RedisChannel("*", RedisChannel.PatternMode.Auto), (channel, message) => { _cacheDirector.GetTable<string>(channel).Remove(message); });
         }
 
         public T Get<T>(string key)
@@ -30,7 +30,14 @@ namespace CHOMP_DEMO.Controllers
             }
 
             RedisValue rCached = _db.StringGet(key);
-            return rCached == RedisValue.Null ? default(T) : JsonConvert.DeserializeObject<T>(rCached);
+            if (rCached != RedisValue.Null)
+            {
+                T deserialized = JsonConvert.DeserializeObject<T>(rCached);
+                _cacheDirector.GetOrCreateTable<string>(typeof(T).FullName).Put(key, deserialized, TimeSpan.FromMinutes(30).Seconds);
+                return deserialized;
+            }
+
+            return default(T);
         }
 
         public bool Set<T>(string key, T data)
@@ -38,6 +45,12 @@ namespace CHOMP_DEMO.Controllers
             var putResult =_cacheDirector.GetOrCreateTable<string>(typeof(T).FullName).Put(key, data, TimeSpan.FromMinutes(30).Seconds);
             bool rResult = _db.StringSet(key, JsonConvert.SerializeObject(data), TimeSpan.FromMinutes(30));
             return (putResult != PutResult.Collision && rResult);
+        }
+
+        public bool Del<T>(string key)
+        {
+            _sub.Publish(typeof(T).FullName, key);
+            return _db.KeyDelete(key);
         }
 
         public void Dispose()
