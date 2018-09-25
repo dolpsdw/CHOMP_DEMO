@@ -17,6 +17,8 @@ namespace CHOMP_DEMO.Controllers
             _cacheDirector.Start();
             //Redis
             _db = _redis.GetDatabase();
+            _sub = _redis.GetSubscriber();
+            _sub.Subscribe("sessionInvalidations", (channel, message) => { _cacheDirector.GetTable<string>(typeof(string).FullName).Remove(message); });
         }
 
         public T Get<T>(string key)
