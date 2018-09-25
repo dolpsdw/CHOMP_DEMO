@@ -5,27 +5,24 @@ namespace CHOMP_DEMO.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CheckAuthController : ControllerBase
+    public class InvalidateSessionController : ControllerBase
     {
         private readonly ICacheManager _cacheManager;
-        public CheckAuthController(ICacheManager cacheManager)
+
+        public InvalidateSessionController(ICacheManager cacheManager)
         {
             _cacheManager = cacheManager;
         }
 
         [AllowAnonymous]
         [HttpPost] //Frombody-> deserializa los argumentos pasados a la api
-        public IActionResult CheckAuth([FromBody] CheckAuthRequest request)
+        public IActionResult InvalidateSession([FromBody] InvalidateSessionRequest request)
         {
-            var cached = _cacheManager.Get<string>($"{request.username}_{request.audience}");
-            if (cached == request.sid)
-            {
-                return StatusCode(200);
-            }
-
-            return StatusCode(204);
+            bool result = _cacheManager.Del<string>($"{request.username}_{request.audience}");
+            return result ? StatusCode(200) : StatusCode(204);
         }
-        public class CheckAuthRequest
+
+        public class InvalidateSessionRequest
         {
             public string username;
             public string audience;

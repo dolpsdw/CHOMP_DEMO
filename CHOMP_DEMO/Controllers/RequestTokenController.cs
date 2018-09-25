@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using NFX.ApplicationModel.Pile;
+
 namespace CHOMP_DEMO.Controllers
 {
     [Route("api/[controller]")]
@@ -27,7 +27,7 @@ namespace CHOMP_DEMO.Controllers
                 var claims = new[]
                 {
                     new Claim(ClaimTypes.Name, request.username),
-                    new Claim(ClaimTypes.Sid, "120398120948140"), 
+                    new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()), 
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("LARGESYMETRICCHUNKOFSTRINGMAYORTHAN128BITSOFLENGHTFORSHAREINSERVERS"/*_configuration["SecurityKey"]*/));
