@@ -1,15 +1,17 @@
 ﻿using System;
+using CHOMP_DEMO.Controllers;
 using Newtonsoft.Json;
 using NFX.ApplicationModel.Pile;
 using StackExchange.Redis;
-namespace CHOMP_DEMO.Controllers
+
+namespace CHOMP_DEMO.Managers
 {
     public class CacheManager : ICacheManager, IDisposable
     {
-        private LocalCache _cacheDirector = new LocalCache();
-        private ConnectionMultiplexer _redis = ConnectionMultiplexer.Connect("localhost");
-        private IDatabase _db;
-        private ISubscriber _sub;
+        private readonly LocalCache _cacheDirector = new LocalCache();
+        private readonly ConnectionMultiplexer _redis = ConnectionMultiplexer.Connect("localhost");
+        private readonly IDatabase _db;
+        private readonly ISubscriber _sub;
         public CacheManager()
         {
             _cacheDirector.Pile = new DefaultPile(_cacheDirector);

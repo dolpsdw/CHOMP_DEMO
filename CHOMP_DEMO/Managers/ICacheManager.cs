@@ -1,4 +1,4 @@
-﻿namespace CHOMP_DEMO.Controllers
+﻿namespace CHOMP_DEMO.Managers
 {
     public interface ICacheManager
     {
