@@ -40,7 +40,7 @@ namespace CHOMP_DEMO.Controllers
 
                 var token = new JwtSecurityToken(
                     issuer: "chomp.chain",
-                    audience: "tiggergaming.com",
+                    audience: "TG_Web",
                     claims: claims,
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);

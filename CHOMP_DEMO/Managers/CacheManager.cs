@@ -20,7 +20,7 @@ namespace CHOMP_DEMO.Managers
             //Redis
             _db = _redis.GetDatabase();
             _sub = _redis.GetSubscriber();
-            _sub.Subscribe(new RedisChannel("*", RedisChannel.PatternMode.Auto), (channel, message) => { _cacheDirector.GetTable<string>(channel).Remove(message); });
+            _sub.Subscribe(new RedisChannel("*", RedisChannel.PatternMode.Auto), (channel, message) => { _cacheDirector.GetOrCreateTable<string>(channel).Remove(message); });
         }
 
         public T Get<T>(string key)
