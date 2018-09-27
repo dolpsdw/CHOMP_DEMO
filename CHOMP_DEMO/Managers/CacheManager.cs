@@ -44,6 +44,7 @@ namespace CHOMP_DEMO.Managers
 
         public bool Set<T>(string key, T data)
         {
+            _sub.Publish(typeof(T).FullName, key);
             var putResult =_cacheDirector.GetOrCreateTable<string>(typeof(T).FullName).Put(key, data, TimeSpan.FromMinutes(30).Seconds);
             bool rResult = _db.StringSet(key, JsonConvert.SerializeObject(data), TimeSpan.FromMinutes(30));
             return (putResult != PutResult.Collision && rResult);
