@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -25,12 +26,15 @@ namespace CHOMP_DEMO.Controllers
         {
             if (request.username == "1234" && request.contra == "1234")
             {
-                var claims = new[]
+                List<Claim> claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.Name, request.username),
                     new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()), 
                 };
-
+                if (true || "isSuperAdmin".IsNormalized())
+                {
+                    claims.Add(new Claim("SuperAdmin",""));
+                }
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("LARGESYMETRICCHUNKOFSTRINGMAYORTHAN128BITSOFLENGHTFORSHAREINSERVERS"/*_configuration["SecurityKey"]*/));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

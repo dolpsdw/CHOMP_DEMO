@@ -29,7 +29,7 @@ namespace CHOMP_DEMO
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Add the authorization configuration
+            //Add the authentication for valid tokens configuration
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
@@ -43,7 +43,11 @@ namespace CHOMP_DEMO
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("LARGESYMETRICCHUNKOFSTRINGMAYORTHAN128BITSOFLENGHTFORSHAREINSERVERS"))
                 };
             });
-
+            //Add authorization for policyties (restrictions in the authenticated tokens)
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SuperAdminsOnly", policy => policy.RequireClaim("SuperAdmin")); //If this claim exist then acces granted, we dont check the value
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             //DI config

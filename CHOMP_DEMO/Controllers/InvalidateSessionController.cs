@@ -15,7 +15,7 @@ namespace CHOMP_DEMO.Controllers
             _cacheManager = cacheManager;
         }
 
-        [Authorize]
+        [Authorize(Policy = "SuperAdminsOnly")]
         [HttpPost] //Frombody-> deserializa los argumentos pasados a la api
         public IActionResult InvalidateSession([FromBody] InvalidateSessionRequest request)
         {
