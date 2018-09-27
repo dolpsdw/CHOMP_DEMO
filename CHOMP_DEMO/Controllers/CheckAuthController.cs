@@ -13,7 +13,7 @@ namespace CHOMP_DEMO.Controllers
         {
             _cacheManager = cacheManager;
         }
-
+        //We dont want the internal server Nodes needing a session for check the sid of a passport
         [AllowAnonymous]
         [HttpPost] //Frombody-> deserializa los argumentos pasados a la api
         public IActionResult CheckAuth([FromBody] CheckAuthRequest request)

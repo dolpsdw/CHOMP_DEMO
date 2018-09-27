@@ -19,7 +19,7 @@ namespace CHOMP_DEMO.Controllers
         {
             _cacheManager = cacheManager;
         }
-
+        //We want clients direct acces to us for JWT passports
         [AllowAnonymous]
         [HttpPost]  //Frombody-> deserializa los argumentos pasados a la api
         public IActionResult RequestToken([FromBody] TokenRequest request)
