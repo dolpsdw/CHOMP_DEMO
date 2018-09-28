@@ -25,7 +25,7 @@ namespace CHOMP_DEMO.Managers
 
         public T Get<T>(string key)
         {
-            object localCached =_cacheDirector.GetTable<string>(typeof(T).FullName).Get(key);
+            object localCached =_cacheDirector.GetOrCreateTable<string>(typeof(T).FullName).Get(key);
             if (localCached != null)
             {
                 return (T) localCached;
