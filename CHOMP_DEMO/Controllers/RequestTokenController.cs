@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using CHOMP_DEMO.DTO;
 using CHOMP_DEMO.Managers;
+using CHOMP_DEMO.Providers;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -15,16 +19,26 @@ namespace CHOMP_DEMO.Controllers
     public class RequestTokenController : ControllerBase
     {
         private readonly ICacheManager _cacheManager;
-        public RequestTokenController(ICacheManager cacheManager)
+        private readonly IAccountProvider _accountProvider;
+
+        public RequestTokenController(ICacheManager cacheManager, IAccountProvider accountProvider)
         {
             _cacheManager = cacheManager;
+            _accountProvider = accountProvider;
         }
         //We want clients direct acces to us for JWT passports
         [AllowAnonymous]
         [HttpPost]  //Frombody-> deserializa los argumentos pasados a la api
         public IActionResult RequestToken([FromBody] TokenRequest request)
         {
-            if (request.username == "1234" && request.contra == "1234")
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@customerID", request.username);
+            p.Add("@password", request.contra, DbType.String);
+            p.Add("@inetTarget", "WL-TG", DbType.String, ParameterDirection.Input);
+            p.Add("@clientcode", "BES");
+            p.Add("@ipAddress", "0.0.0.1");
+            ICollection<dbsp_GetCustomerInfoAtLogin_Result> result = _accountProvider.Procedure<dbsp_GetCustomerInfoAtLogin_Result>("dbsp_GetCustomerInfoAtLogin", p);
+            if (result.Count > 0)
             {
                 List<Claim> claims = new List<Claim>()
                 {

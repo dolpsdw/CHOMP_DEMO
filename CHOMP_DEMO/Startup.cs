@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CHOMP_DEMO.Managers;
+using CHOMP_DEMO.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,6 +53,9 @@ namespace CHOMP_DEMO
 
             //DI config
             services.AddSingleton<ICacheManager, CacheManager>();
+
+            //DB configuration -> Use Transient for being able to +serve multiple request -but control the dispose
+            services.AddTransient<IAccountProvider>(f => new AccountProvider(Configuration["ConnectionString:AccountDB"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
