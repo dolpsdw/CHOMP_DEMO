@@ -56,6 +56,8 @@ namespace CHOMP_DEMO
 
             //DB configuration -> Use Transient for being able to +serve multiple request -but control the dispose
             services.AddTransient<IAccountProvider>(f => new AccountProvider(Configuration["ConnectionString:AccountDB"]));
+            services.AddTransient<IASIProvider>(f => new ASIProvider(Configuration["ConnectionString:ASIDB"]));
+            services.AddTransient<IProspectProvider>(f => new ProspectProvider(Configuration["ConnectionString:ProspectDB"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

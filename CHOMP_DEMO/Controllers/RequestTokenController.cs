@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using CHOMP_DEMO.DTO;
@@ -20,11 +21,15 @@ namespace CHOMP_DEMO.Controllers
     {
         private readonly ICacheManager _cacheManager;
         private readonly IAccountProvider _accountProvider;
+        private readonly IASIProvider _asiProvider;
+        private readonly IProspectProvider _prospectProvider;
 
-        public RequestTokenController(ICacheManager cacheManager, IAccountProvider accountProvider)
+        public RequestTokenController(ICacheManager cacheManager, IAccountProvider accountProvider, IASIProvider asiProvider, IProspectProvider prospectProvider)
         {
             _cacheManager = cacheManager;
             _accountProvider = accountProvider;
+            _asiProvider = asiProvider;
+            _prospectProvider = prospectProvider;
         }
         //We want clients direct acces to us for JWT passports
         [AllowAnonymous]
@@ -40,14 +45,27 @@ namespace CHOMP_DEMO.Controllers
             ICollection<dbsp_GetCustomerInfoAtLogin_Result> result = _accountProvider.Procedure<dbsp_GetCustomerInfoAtLogin_Result>("dbsp_GetCustomerInfoAtLogin", p);
             if (result.Count > 0)
             {
+                var user = result.First();
+                var prospects = _prospectProvider.Procedure<dbsp_GetProspectCustomerInfoByCustomerID_Result>("dbsp_GetProspectCustomerInfoByCustomerID", new DynamicParameters(new {CustomerID=user.CustomerID} ));
+                var customerProperties = _asiProvider.Procedure<dbsp_GetCustomerPropertyByCustomerID_Result>("dbsp_GetCustomerPropertyByCustomerID", new DynamicParameters(new {customerID = user.CustomerID}  ));
                 List<Claim> claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.Name, request.username),
-                    new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()), 
+                    new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString())
                 };
                 if (true || "isSuperAdmin".IsNormalized())
                 {
                     claims.Add(new Claim("SuperAdmin",""));
+                }
+
+                if (prospects.Count > 0)
+                {
+                    claims.Add(new Claim("FreePlayValidated", "true"));
+                    claims.Add(new Claim("ProspectFreePlayAmount", prospects.First().ProspectFreePlayAmount.ToString("F") ));
+                }
+                foreach (dbsp_GetCustomerPropertyByCustomerID_Result prop in customerProperties)
+                {
+                    claims.Add(new Claim(prop.Property, prop.Value));
                 }
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("LARGESYMETRICCHUNKOFSTRINGMAYORTHAN128BITSOFLENGHTFORSHAREINSERVERS"/*_configuration["SecurityKey"]*/));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
